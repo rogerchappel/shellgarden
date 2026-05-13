@@ -56,7 +56,7 @@ A garden config looks like this:
 ## Commands
 
 - `shellgarden init <dir>` creates a small demo garden.
-- `shellgarden check <dir> [--format text|json] [--update] [--dry-run]` executes safe examples and compares transcripts.
+- `shellgarden check <dir> [--format text|json] [--update] [--dry-run] [--strict-warnings]` executes safe examples and compares transcripts.
 - `shellgarden report <dir> --format json` emits machine-readable results.
 - `shellgarden run <dir> --execute` is an explicit execution alias; without `--execute`, it dry-runs.
 - `shellgarden explain <dir>` prints the execution plan and safety notes.
