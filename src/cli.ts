@@ -2,6 +2,7 @@ import { initProject } from "./init.js";
 import { explainGarden } from "./explain.js";
 import { renderJson, renderText } from "./render.js";
 import { runGarden } from "./runner.js";
+import { listGarden } from "./list.js";
 import type { OutputFormat } from "./types.js";
 
 interface ParsedArgs {
@@ -36,6 +37,11 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
 
   if (args.command === "explain") {
     console.log(explainGarden(args.target));
+    return 0;
+  }
+
+  if (args.command === "list") {
+    console.log(listGarden(args.target));
     return 0;
   }
 
@@ -86,5 +92,5 @@ function readFormat(value: string | undefined): OutputFormat {
 }
 
 export function helpText(): string {
-  return `ShellGarden - fixture-backed shell examples that stay fresh\n\nUsage:\n  shellgarden init <dir>\n  shellgarden check <dir> [--format text|json] [--update] [--dry-run]\n  shellgarden report <dir> [--format text|json]\n  shellgarden run <dir> --execute [--format text|json]\n  shellgarden explain <dir>\n\nExit codes:\n  0 clean garden\n  1 findings exceeded policy\n  2 invalid input or config\n`;
+  return `ShellGarden - fixture-backed shell examples that stay fresh\n\nUsage:\n  shellgarden init <dir>\n  shellgarden check <dir> [--format text|json] [--update] [--dry-run]\n  shellgarden report <dir> [--format text|json]\n  shellgarden run <dir> --execute [--format text|json]\n  shellgarden explain <dir>\n  shellgarden list <dir>\n\nExit codes:\n  0 clean garden\n  1 findings exceeded policy\n  2 invalid input or config\n`;
 }
