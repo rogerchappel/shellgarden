@@ -1,79 +1,34 @@
 # Contributing
 
-Thanks for helping improve `shellgarden`.
+Thanks for helping tend ShellGarden. Keep changes small, local-first, and fixture-backed.
 
-This project values small, reviewable contributions with clear verification.
+## Development
 
-## Issues
-
-Before opening an issue:
-
-- Search existing issues.
-- Confirm the issue applies to `shellgarden`.
-- Include enough context for maintainers to understand or reproduce the request.
-
-Bug reports should include:
-
-- What happened.
-- What you expected.
-- Steps to reproduce.
-- Relevant logs, screenshots, or files.
-- The smallest verification step that demonstrates the issue.
-
-Feature requests should include:
-
-- The use case.
-- Why the current project does not solve it.
-- Risks or compatibility concerns.
-- Suggested files or behavior that may need to change.
-
-## Pull Requests
-
-Pull requests should:
-
-- Focus on one reviewable intent.
-- Use a branch.
-- Follow Conventional Commits.
-- Include tests or verification appropriate to the change.
-- Update documentation when behavior or usage changes.
-- Avoid unrelated formatting or dependency churn.
-- Avoid secrets, private contact details, and project-specific sensitive information.
-
-## Review Pack
-
-Use this format for meaningful changes:
-
-```md
-## Review Pack
-Repo:
-Branch:
-PR:
-Task:
-Status: done / blocked / needs review
-Summary:
-Commits:
-Files changed:
-Verification:
-Risk level:
-Rollback plan:
-Human decision needed:
-Next recommended task:
+```bash
+npm install
+npm run check
+npm test
+npm run smoke
+bash scripts/validate.sh
 ```
 
-## Verification
+## Commit style
 
-Every contribution should include verification.
+Prefer focused commits that explain intent:
 
-Examples:
+- `feat:` user-visible capability
+- `fix:` bug or determinism correction
+- `test:` fixture or automated coverage
+- `docs:` documentation-only change
+- `chore:` repository maintenance
 
-- Documentation: inspect rendered Markdown or review the diff.
-- Tests: run the targeted test command.
-- Types: run the project typecheck.
-- Build: run the smallest build command that covers the change.
-- Manual QA: provide exact steps and observed result.
+## Adding command behavior
 
-If verification cannot be run, explain why and provide the exact command maintainers should run.
+1. Add or update a fixture under `fixtures/`.
+2. Add a node:test case under `tests/`.
+3. Update docs when the CLI surface changes.
+4. Run the full validation set.
 
-## Maintainer Review
+## Safety expectations
 
-Maintainers may request narrower scope, clearer verification, additional tests, or safer defaults before merging.
+Do not add hidden network calls, telemetry, or broad filesystem mutation. If a command can write transcripts, it must require explicit user intent.
