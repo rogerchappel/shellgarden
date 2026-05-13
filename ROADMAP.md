@@ -1,37 +1,37 @@
 # Roadmap
 
-This roadmap describes intended direction, not a binding delivery promise.
-Review it regularly and update it as the project learns from users,
-contributors, and implementation constraints.
+This roadmap describes intended direction, not a binding delivery promise. ShellGarden should stay small, deterministic, and local-first.
 
 ## Now
 
-- Define the smallest useful project scope.
-- Keep repository setup, documentation, and verification easy for contributors
-  to follow.
-- Ship small, reviewable improvements.
+- Stabilize the `shellgarden.config.json` shape around real examples.
+- Keep command execution reviewable with fixture-backed tests.
+- Improve diagnostics for transcript drift and blocked commands.
+- Collect feedback on README/example testing workflows.
 
 ## Next
 
-- Add the next capabilities that directly support the project's primary users.
-- Improve tests, docs, and examples around the most used workflows.
-- Reduce setup friction discovered during early use.
+- Add richer diff output for transcript mismatches.
+- Support config schema discovery from editors and generated examples.
+- Add optional JUnit or SARIF-style machine-readable output for CI.
+- Explore per-command environment declarations that remain deterministic.
 
 ## Later
 
-- Consider larger features after the core workflow is stable.
-- Add automation only where it removes repeated maintainer work.
-- Revisit packaging, deployment, or integration options based on real demand.
+- Consider markdown snippet extraction once explicit config remains solid.
+- Consider package-manager helpers for common docs examples.
+- Investigate stronger sandbox adapters without making them mandatory.
 
 ## Not Planned
 
-- Unrelated platform rewrites without a clear migration path.
-- Mandatory dependencies on a single ecosystem unless the project requires it.
-- Public release dates before maintainers are ready to commit to them.
+- Hidden telemetry or hosted execution.
+- Running commands outside declared fixture directories.
+- Mutating transcripts without explicit `--update` intent.
+- Replacing full integration test suites; ShellGarden complements them.
 
 ## Roadmap Review
 
-Before each major or meaningful minor release:
+Before each meaningful release:
 
 - Move completed user-visible work into `CHANGELOG.md`.
 - Remove stale commitments.
