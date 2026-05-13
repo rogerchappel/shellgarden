@@ -9,7 +9,6 @@ export interface ExecuteOptions {
 }
 
 export async function executeCommand(command: CommandSpec, options: ExecuteOptions): Promise<Transcript> {
-  const started = Date.now();
   const child = spawn(command.run, {
     cwd: options.cwd,
     shell: "/bin/sh",
@@ -49,7 +48,7 @@ export async function executeCommand(command: CommandSpec, options: ExecuteOptio
     exitCode: timedOut ? null : child.exitCode,
     stdout: normalizeOutput(stdout, options.workspaceRoot),
     stderr: normalizeOutput(timedOut ? `${stderr}\n<timed out after ${options.timeoutMs}ms>` : stderr, options.workspaceRoot),
-    durationMs: Math.max(0, Date.now() - started),
+    durationMs: 0,
   };
 }
 
