@@ -1,0 +1,30 @@
+# Configuration
+
+ShellGarden reads `shellgarden.config.json` from the directory passed to `check`, `report`, `run`, or `explain`.
+
+## Fields
+
+- `version`: currently `1`.
+- `name`: optional display name.
+- `defaultTimeoutMs`: optional command timeout in milliseconds.
+- `gardens`: ordered list of fixture-backed command groups.
+
+Each garden has:
+
+- `id`: stable identifier used in reports.
+- `fixture`: path under the workspace. Commands execute from here.
+- `description`: optional human context.
+- `commands`: ordered command declarations.
+
+Each command has:
+
+- `id`: stable identifier.
+- `run`: shell command run with `/bin/sh`.
+- `expectExit`: expected exit code, default `0`.
+- `allowFail`: records the transcript without failing on exit mismatch.
+- `timeoutMs`: per-command timeout override.
+- `transcript`: optional golden transcript path under the workspace.
+
+## Schema
+
+See [`docs/schema/shellgarden.schema.json`](schema/shellgarden.schema.json).
