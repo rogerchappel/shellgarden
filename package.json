@@ -3,6 +3,14 @@
   "version": "0.1.0",
   "description": "Fixture-backed shell command examples with deterministic local transcripts.",
   "type": "module",
+  "homepage": "https://github.com/rogerchappel/shellgarden#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rogerchappel/shellgarden.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rogerchappel/shellgarden/issues"
+  },
   "bin": {
     "shellgarden": "./dist/index.js"
   },
