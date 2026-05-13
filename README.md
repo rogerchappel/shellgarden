@@ -71,7 +71,7 @@ A garden config looks like this:
 
 ShellGarden runs commands only inside declared fixture directories. It rejects path escapes and blocks obviously risky commands (`sudo`, destructive `rm`, common network tools, broad chmods, and system writes). The environment is normalized with UTC locale/timezone settings and output paths are replaced with `<workspace>`.
 
-This is not a sandbox. Treat garden commands like test scripts: review them before accepting contributions.
+This is not a sandbox. Treat garden commands like test scripts: review them before accepting contributions. See [docs/SAFETY.md](docs/SAFETY.md) for the full boundary model.
 
 ## Examples
 
