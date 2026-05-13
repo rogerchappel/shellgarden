@@ -1,0 +1,26 @@
+{
+  "name": "shellgarden",
+  "version": 1,
+  "repo": "rogerchappel/shellgarden",
+  "verification": [
+    "npm test",
+    "npm run check",
+    "npm run build",
+    "npm run smoke",
+    "bash scripts/validate.sh",
+    "node dist/index.js check fixtures/pass --format json"
+  ],
+  "commands": {
+    "init": "shellgarden init ./demo",
+    "checkText": "shellgarden check ./demo --format text",
+    "checkJson": "shellgarden check ./demo --format json",
+    "explain": "shellgarden explain ./demo"
+  },
+  "safety": {
+    "network": false,
+    "telemetry": false,
+    "defaultMutation": false,
+    "executionCwd": "declared fixture directory",
+    "transcriptMutationRequires": "--update"
+  }
+}
