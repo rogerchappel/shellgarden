@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "name": "passing-fixtures",
+  "defaultTimeoutMs": 5000,
+  "gardens": [
+    {
+      "id": "read-file",
+      "fixture": "workspace",
+      "description": "Stable file reads from a tiny project fixture.",
+      "commands": [
+        {
+          "id": "list-files",
+          "run": "find . -type f | sort",
+          "description": "Lists fixture files deterministically.",
+          "expectExit": 0,
+          "transcript": "transcripts/read-file-list-files.txt"
+        },
+        {
+          "id": "print-message",
+          "run": "cat message.txt",
+          "description": "Prints a fixture-backed message.",
+          "expectExit": 0,
+          "transcript": "transcripts/read-file-print-message.txt"
+        }
+      ]
+    }
+  ]
+}

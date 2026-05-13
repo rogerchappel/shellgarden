@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "name": "failing-fixtures",
+  "gardens": [
+    {
+      "id": "exit-policy",
+      "fixture": "workspace",
+      "commands": [
+        {
+          "id": "wrong-exit",
+          "run": "printf 'nope\\n'; exit 3",
+          "expectExit": 0
+        }
+      ]
+    }
+  ]
+}

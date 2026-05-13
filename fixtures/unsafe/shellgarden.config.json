@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "name": "unsafe-fixtures",
+  "gardens": [
+    {
+      "id": "blocked",
+      "fixture": "workspace",
+      "commands": [
+        {
+          "id": "network",
+          "run": "curl https://example.com",
+          "expectExit": 0
+        }
+      ]
+    }
+  ]
+}

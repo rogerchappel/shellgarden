@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "name": "warning-fixtures",
+  "gardens": [
+    {
+      "id": "missing-transcript",
+      "fixture": "workspace",
+      "commands": [
+        {
+          "id": "prints-but-no-golden-file-yet",
+          "run": "printf 'seed\\n'",
+          "expectExit": 0,
+          "transcript": "transcripts/missing.txt"
+        }
+      ]
+    }
+  ]
+}

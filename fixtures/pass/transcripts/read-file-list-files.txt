@@ -1,0 +1,6 @@
+$ find . -type f | sort
+cwd: <workspace>/workspace
+exit: 0
+stdout:
+./message.txt
+./package.json

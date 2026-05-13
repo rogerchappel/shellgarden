@@ -1,0 +1,5 @@
+$ cat message.txt
+cwd: <workspace>/workspace
+exit: 0
+stdout:
+hello from the garden
