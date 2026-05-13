@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "name": "readme-command-garden",
+  "gardens": [
+    {
+      "id": "basic-readme",
+      "fixture": "fixtures/basic",
+      "description": "A tiny docs fixture that proves README examples still work.",
+      "commands": [
+        {
+          "id": "show-version-file",
+          "run": "printf 'version='; cat VERSION",
+          "expectExit": 0,
+          "transcript": "transcripts/basic-readme-show-version-file.txt"
+        }
+      ]
+    }
+  ]
+}
