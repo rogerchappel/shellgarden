@@ -9,6 +9,7 @@ import type { CommandResult, Finding, GardenReport, Transcript } from "./types.j
 export interface RunOptions {
   dryRun?: boolean;
   update?: boolean;
+  strictWarnings?: boolean;
 }
 
 const DEFAULT_TIMEOUT_MS = 5000;
@@ -55,7 +56,7 @@ export async function runGarden(target: string, options: RunOptions = {}): Promi
   const errors = findings.filter((finding) => finding.level === "error").length;
   const warnings = findings.filter((finding) => finding.level === "warning").length;
   return {
-    ok: errors === 0,
+    ok: errors === 0 && (!options.strictWarnings || warnings === 0),
     checkedAt: FIXED_CHECKED_AT,
     root: normalizeOutput(loaded.root, loaded.root),
     configPath: normalizeOutput(loaded.configPath, loaded.root),
