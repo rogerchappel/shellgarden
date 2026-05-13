@@ -60,6 +60,7 @@ A garden config looks like this:
 - `shellgarden report <dir> --format json` emits machine-readable results.
 - `shellgarden run <dir> --execute` is an explicit execution alias; without `--execute`, it dry-runs.
 - `shellgarden explain <dir>` prints the execution plan and safety notes.
+- `shellgarden list <dir>` prints a tab-separated inventory of garden commands.
 
 ## Exit codes
 
