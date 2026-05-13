@@ -12,6 +12,7 @@ interface ParsedArgs {
   dryRun: boolean;
   update: boolean;
   strictWarnings: boolean;
+  filter?: string;
   help: boolean;
   version: boolean;
 }
@@ -48,7 +49,7 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
 
   if (args.command === "check" || args.command === "report" || args.command === "run") {
     const dryRun = args.command === "run" ? !argv.includes("--execute") : args.dryRun;
-    const report = await runGarden(args.target, { dryRun, update: args.update, strictWarnings: args.strictWarnings });
+    const report = await runGarden(args.target, { dryRun, update: args.update, strictWarnings: args.strictWarnings, filter: args.filter });
     console.log(args.format === "json" ? renderJson(report) : renderText(report));
     return report.ok ? 0 : 1;
   }
@@ -79,8 +80,10 @@ function parseArgs(argv: string[]): ParsedArgs {
     else if (arg === "--update") parsed.update = true;
     else if (arg === "--strict-warnings") parsed.strictWarnings = true;
     else if (arg === "--execute") continue;
+    else if (arg === "--filter") parsed.filter = argv[++index];
     else if (arg === "--format") parsed.format = readFormat(argv[++index]);
     else if (arg.startsWith("--format=")) parsed.format = readFormat(arg.slice("--format=".length));
+    else if (arg.startsWith("--filter=")) parsed.filter = arg.slice("--filter=".length);
     else if (arg.startsWith("-")) throw new Error(`Unknown option: ${arg}`);
     else positional.push(arg);
   }
@@ -95,5 +98,5 @@ function readFormat(value: string | undefined): OutputFormat {
 }
 
 export function helpText(): string {
-  return `ShellGarden - fixture-backed shell examples that stay fresh\n\nUsage:\n  shellgarden init <dir>\n  shellgarden check <dir> [--format text|json] [--update] [--dry-run] [--strict-warnings]\n  shellgarden report <dir> [--format text|json]\n  shellgarden run <dir> --execute [--format text|json]\n  shellgarden explain <dir>\n  shellgarden list <dir>\n\nExit codes:\n  0 clean garden\n  1 findings exceeded policy\n  2 invalid input or config\n`;
+  return `ShellGarden - fixture-backed shell examples that stay fresh\n\nUsage:\n  shellgarden init <dir>\n  shellgarden check <dir> [--format text|json] [--update] [--dry-run] [--strict-warnings] [--filter id]\n  shellgarden report <dir> [--format text|json]\n  shellgarden run <dir> --execute [--format text|json]\n  shellgarden explain <dir>\n  shellgarden list <dir>\n\nExit codes:\n  0 clean garden\n  1 findings exceeded policy\n  2 invalid input or config\n`;
 }

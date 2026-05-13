@@ -10,6 +10,7 @@ export interface RunOptions {
   dryRun?: boolean;
   update?: boolean;
   strictWarnings?: boolean;
+  filter?: string;
 }
 
 const DEFAULT_TIMEOUT_MS = 5000;
@@ -27,6 +28,8 @@ export async function runGarden(target: string, options: RunOptions = {}): Promi
       continue;
     }
     for (const command of garden.commands) {
+      const commandKey = `${garden.id}/${command.id}`;
+      if (options.filter && commandKey !== options.filter && command.id !== options.filter && garden.id !== options.filter) continue;
       const commandFindings = inspectCommand(command, garden.id);
       const result: CommandResult = {
         gardenId: garden.id,
