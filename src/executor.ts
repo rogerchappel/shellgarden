@@ -8,6 +8,8 @@ export interface ExecuteOptions {
   timeoutMs: number;
 }
 
+const MAX_CAPTURE_BYTES = 128 * 1024;
+
 export async function executeCommand(command: CommandSpec, options: ExecuteOptions): Promise<Transcript> {
   const child = spawn(command.run, {
     cwd: options.cwd,
@@ -21,10 +23,10 @@ export async function executeCommand(command: CommandSpec, options: ExecuteOptio
   child.stdout.setEncoding("utf8");
   child.stderr.setEncoding("utf8");
   child.stdout.on("data", (chunk: string) => {
-    stdout += chunk;
+    stdout = appendBounded(stdout, chunk);
   });
   child.stderr.on("data", (chunk: string) => {
-    stderr += chunk;
+    stderr = appendBounded(stderr, chunk);
   });
 
   const timedOut = await new Promise<boolean>((resolve, reject) => {
@@ -50,6 +52,12 @@ export async function executeCommand(command: CommandSpec, options: ExecuteOptio
     stderr: normalizeOutput(timedOut ? `${stderr}\n<timed out after ${options.timeoutMs}ms>` : stderr, options.workspaceRoot),
     durationMs: 0,
   };
+}
+
+function appendBounded(current: string, chunk: string): string {
+  const next = current + chunk;
+  if (Buffer.byteLength(next, "utf8") <= MAX_CAPTURE_BYTES) return next;
+  return `${next.slice(0, MAX_CAPTURE_BYTES)}\n<output truncated>`;
 }
 
 function deterministicEnv(root: string): NodeJS.ProcessEnv {
