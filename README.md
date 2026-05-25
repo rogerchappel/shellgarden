@@ -86,6 +86,16 @@ node dist/index.js explain fixtures/pass
 
 The `fixtures/warn`, `fixtures/fail`, and `fixtures/unsafe` gardens document warning, policy failure, and safety-blocked cases.
 
+## Verify
+
+```bash
+npm test
+npm run check
+npm run smoke
+npm run package:smoke
+npm run release:check
+```
+
 ## Why this exists
 
 README commands rot quietly. Agents copy stale examples loudly. ShellGarden gives small projects a way to keep examples executable, deterministic, and easy to inspect.
