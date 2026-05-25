@@ -29,7 +29,7 @@
     "check": "tsc --noEmit && node scripts/check-docs.mjs",
     "test": "npm run build && node --test tests/**/*.test.mjs",
     "smoke": "npm run build && node dist/index.js check fixtures/pass --format text && node dist/index.js report fixtures/pass --format json > /tmp/shellgarden-smoke-report.json",
-    "package:smoke": "npm pack --dry-run",
+    "package:smoke": "bash scripts/package-smoke.sh",
     "release:check": "npm run build && npm test && npm run smoke && npm run package:smoke"
   },
   "keywords": [
