@@ -8,7 +8,7 @@
     "npm run build",
     "npm run smoke",
     "bash scripts/validate.sh",
-    "node dist/index.js check fixtures/pass --format json"
+    "node dist/bin.js check fixtures/pass --format json"
   ],
   "commands": {
     "init": "shellgarden init ./demo",

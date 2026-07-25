@@ -9,6 +9,6 @@ printf 'version='; cat VERSION
 Harvest or verify it from the repository root:
 
 ```bash
-node dist/index.js check examples/readme-command-garden --update
-node dist/index.js check examples/readme-command-garden
+node dist/bin.js check examples/readme-command-garden --update
+node dist/bin.js check examples/readme-command-garden
 ```
