@@ -15,7 +15,7 @@ For local development:
 ```bash
 npm install
 npm run build
-node dist/index.js --help
+node dist/bin.js --help
 ```
 
 ## Quick start
@@ -79,9 +79,9 @@ This is not a sandbox. Treat garden commands like test scripts: review them befo
 Try the repository fixtures:
 
 ```bash
-node dist/index.js check fixtures/pass
-node dist/index.js report fixtures/pass --format json
-node dist/index.js explain fixtures/pass
+node dist/bin.js check fixtures/pass
+node dist/bin.js report fixtures/pass --format json
+node dist/bin.js explain fixtures/pass
 ```
 
 The `fixtures/warn`, `fixtures/fail`, and `fixtures/unsafe` gardens document warning, policy failure, and safety-blocked cases.

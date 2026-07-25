@@ -12,7 +12,7 @@
     "url": "https://github.com/rogerchappel/shellgarden/issues"
   },
   "bin": {
-    "shellgarden": "./dist/index.js"
+    "shellgarden": "./dist/bin.js"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -39,7 +39,7 @@
     "build": "tsc",
     "check": "tsc --noEmit && node scripts/check-docs.mjs",
     "test": "npm run build && node --test tests/**/*.test.mjs",
-    "smoke": "npm run build && node dist/index.js check fixtures/pass --format text && node dist/index.js report fixtures/pass --format json > /tmp/shellgarden-smoke-report.json",
+    "smoke": "npm run build && node dist/bin.js check fixtures/pass --format text && node dist/bin.js report fixtures/pass --format json > /tmp/shellgarden-smoke-report.json",
     "package:smoke": "bash scripts/package-smoke.sh",
     "release:check": "npm run build && npm test && npm run smoke && npm run package:smoke"
   },

@@ -18,8 +18,8 @@ test('list command returns deterministic command inventory', () => {
 test('init creates a runnable garden', async () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'shellgarden-init-'));
   const target = path.join(dir, 'demo');
-  await execFileAsync(process.execPath, ['dist/index.js', 'init', target]);
+  await execFileAsync(process.execPath, ['dist/bin.js', 'init', target]);
   assert.equal(fs.existsSync(path.join(target, 'shellgarden.config.json')), true);
-  await execFileAsync(process.execPath, ['dist/index.js', 'check', target, '--update']);
-  await execFileAsync(process.execPath, ['dist/index.js', 'check', target]);
+  await execFileAsync(process.execPath, ['dist/bin.js', 'check', target, '--update']);
+  await execFileAsync(process.execPath, ['dist/bin.js', 'check', target]);
 });
