@@ -16,6 +16,19 @@ cd "$TMP_DIR/app"
 npm init -y >/dev/null
 npm install "$PACKAGE_TGZ" >/dev/null
 
+node --input-type=module --eval "
+  const api = await import('shellgarden');
+  const expected = ['explainGarden', 'listGarden', 'renderTranscript', 'runGarden'];
+  if (JSON.stringify(Object.keys(api).sort()) !== JSON.stringify(expected)) {
+    throw new Error('unexpected public exports');
+  }
+  if (process.exitCode !== undefined) {
+    throw new Error('public import changed process.exitCode');
+  }
+" > "$TMP_DIR/import.stdout" 2> "$TMP_DIR/import.stderr"
+test ! -s "$TMP_DIR/import.stdout"
+test ! -s "$TMP_DIR/import.stderr"
+
 npx shellgarden --help >/dev/null
 mkdir garden
 npx shellgarden init garden >/dev/null
