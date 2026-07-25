@@ -6,6 +6,10 @@ This project follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) an
 
 ## [Unreleased]
 
+### Fixed
+
+- Importing the public package entry no longer invokes the CLI or changes process exit state.
+
 ### Added
 
 - Local-first TypeScript CLI with `init`, `check`, `report`, `run`, `explain`, and `list` commands.
