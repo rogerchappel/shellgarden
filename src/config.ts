@@ -36,9 +36,12 @@ export function loadConfig(target: string): LoadedConfig {
 
 export function validateConfig(value: unknown): ShellGardenConfig {
   if (!isRecord(value)) throw new ShellGardenError("Config must be a JSON object");
+  rejectUnknownProperties(value, ["version", "name", "defaultTimeoutMs", "gardens"], "Config");
   if (value.version !== 1) throw new ShellGardenError("Config version must be 1");
   if (!Array.isArray(value.gardens)) throw new ShellGardenError("Config gardens must be an array");
+  if (value.gardens.length === 0) throw new ShellGardenError("Config gardens must contain at least one garden");
   const gardens = value.gardens.map(validateGarden);
+  rejectDuplicateIds(gardens, "garden", (index) => `gardens[${index}].id`);
   return {
     version: 1,
     name: optionalString(value.name, "name"),
@@ -49,19 +52,28 @@ export function validateConfig(value: unknown): ShellGardenConfig {
 
 function validateGarden(value: unknown, index: number): GardenSpec {
   if (!isRecord(value)) throw new ShellGardenError(`Garden ${index} must be an object`);
+  rejectUnknownProperties(value, ["id", "fixture", "description", "commands"], `gardens[${index}]`);
   const id = requiredId(value.id, `gardens[${index}].id`);
   const fixture = requiredString(value.fixture, `gardens[${index}].fixture`);
   if (!Array.isArray(value.commands)) throw new ShellGardenError(`Garden ${id} commands must be an array`);
+  if (value.commands.length === 0) throw new ShellGardenError(`Garden ${id} commands must contain at least one command`);
+  const commands = value.commands.map((command, commandIndex) => validateCommand(command, id, index, commandIndex));
+  rejectDuplicateIds(commands, "command", (commandIndex) => `gardens[${index}].commands[${commandIndex}].id`);
   return {
     id,
     fixture,
     description: optionalString(value.description, `gardens[${index}].description`),
-    commands: value.commands.map((command, commandIndex) => validateCommand(command, id, commandIndex)),
+    commands,
   };
 }
 
-function validateCommand(value: unknown, gardenId: string, index: number): CommandSpec {
+function validateCommand(value: unknown, gardenId: string, gardenIndex: number, index: number): CommandSpec {
   if (!isRecord(value)) throw new ShellGardenError(`Command ${gardenId}/${index} must be an object`);
+  rejectUnknownProperties(
+    value,
+    ["id", "run", "description", "expectExit", "allowFail", "timeoutMs", "transcript"],
+    `gardens[${gardenIndex}].commands[${index}]`,
+  );
   return {
     id: requiredId(value.id, `commands[${index}].id`),
     run: requiredString(value.run, `commands[${index}].run`),
@@ -71,6 +83,23 @@ function validateCommand(value: unknown, gardenId: string, index: number): Comma
     timeoutMs: optionalPositiveInteger(value.timeoutMs, `commands[${index}].timeoutMs`),
     transcript: optionalString(value.transcript, `commands[${index}].transcript`),
   };
+}
+
+function rejectUnknownProperties(value: Record<string, unknown>, allowed: readonly string[], path: string): void {
+  const unknown = Object.keys(value).find((key) => !allowed.includes(key));
+  if (unknown !== undefined) throw new ShellGardenError(`${path} has unknown property "${unknown}"`);
+}
+
+function rejectDuplicateIds<T extends { id: string }>(
+  values: readonly T[],
+  kind: string,
+  pathForIndex: (index: number) => string,
+): void {
+  const seen = new Set<string>();
+  for (const [index, value] of values.entries()) {
+    if (seen.has(value.id)) throw new ShellGardenError(`Duplicate ${kind} id "${value.id}" at ${pathForIndex(index)}`);
+    seen.add(value.id);
+  }
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
