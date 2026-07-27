@@ -7,14 +7,14 @@ ShellGarden reads `shellgarden.config.json` from the directory passed to `check`
 - `version`: currently `1`.
 - `name`: optional display name.
 - `defaultTimeoutMs`: optional command timeout in milliseconds.
-- `gardens`: ordered list of fixture-backed command groups.
+- `gardens`: non-empty ordered list of fixture-backed command groups. Garden IDs must be unique.
 
 Each garden has:
 
 - `id`: stable identifier used in reports.
 - `fixture`: path under the workspace. Commands execute from here.
 - `description`: optional human context.
-- `commands`: ordered command declarations.
+- `commands`: non-empty ordered command declarations. Command IDs must be unique within their garden.
 
 Each command has:
 
@@ -28,3 +28,5 @@ Each command has:
 ## Schema
 
 See [`docs/schema/shellgarden.schema.json`](schema/shellgarden.schema.json).
+
+Configuration objects are strict: properties not listed above are rejected instead of being ignored.
