@@ -41,7 +41,8 @@
     "test": "npm run build && node --test tests/**/*.test.mjs",
     "smoke": "npm run build && node dist/bin.js check fixtures/pass --format text && node dist/bin.js report fixtures/pass --format json > /tmp/shellgarden-smoke-report.json",
     "package:smoke": "bash scripts/package-smoke.sh",
-    "release:check": "npm run build && npm test && npm run smoke && npm run package:smoke"
+    "documented-install:smoke": "bash scripts/documented-install-smoke.sh",
+    "release:check": "npm run build && npm test && npm run smoke && npm run package:smoke && npm run documented-install:smoke"
   },
   "keywords": [
     "cli",
