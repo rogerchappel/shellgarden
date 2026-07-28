@@ -6,14 +6,24 @@ It is local-first: no telemetry, no hidden network calls, and no mutation outsid
 
 ## Install
 
+ShellGarden is not currently published to the npm registry. Install it from
+the source repository instead:
+
 ```bash
-npm install -g shellgarden
+git clone https://github.com/rogerchappel/shellgarden.git
+cd shellgarden
+npm ci
+npm run build
+npm install --global .
+shellgarden --help
 ```
 
-For local development:
+This installs the `shellgarden` command using npm's configured global prefix.
+
+For local development without a global install:
 
 ```bash
-npm install
+npm ci
 npm run build
 node dist/bin.js --help
 ```
@@ -93,6 +103,7 @@ npm test
 npm run check
 npm run smoke
 npm run package:smoke
+npm run documented-install:smoke
 npm run release:check
 ```
 
