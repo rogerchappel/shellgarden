@@ -35,3 +35,40 @@ test('cli reports invalid config with exit code 2', async (t) => {
     (error) => error.code === 2 && error.stderr.includes('Config gardens must contain at least one garden')
   );
 });
+
+for (const args of [
+  ['check', 'fixtures/pass', '--filter'],
+  ['check', 'fixtures/pass', '--filter='],
+]) {
+  test(`cli rejects an empty filter value: ${args.join(' ')}`, async () => {
+    await assert.rejects(
+      execFileAsync(process.execPath, ['dist/bin.js', ...args]),
+      (error) => error.code === 2
+        && error.stderr.includes('--filter requires a non-empty value')
+        && !error.stdout.includes('ShellGarden passed')
+    );
+  });
+}
+
+for (const args of [
+  ['report', 'fixtures/pass', '--format'],
+  ['report', 'fixtures/pass', '--format='],
+]) {
+  test(`cli rejects an empty format value: ${args.join(' ')}`, async () => {
+    await assert.rejects(
+      execFileAsync(process.execPath, ['dist/bin.js', ...args]),
+      (error) => error.code === 2
+        && error.stderr.includes('--format requires a non-empty value')
+        && error.stdout === ''
+    );
+  });
+}
+
+test('cli rejects surplus positional arguments', async () => {
+  await assert.rejects(
+    execFileAsync(process.execPath, ['dist/bin.js', 'check', 'fixtures/pass', 'extra-target']),
+    (error) => error.code === 2
+      && error.stderr.includes('Unexpected argument: extra-target')
+      && !error.stdout.includes('ShellGarden passed')
+  );
+});
