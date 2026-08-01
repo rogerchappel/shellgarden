@@ -72,6 +72,8 @@ A garden config looks like this:
 - `shellgarden explain <dir>` prints the execution plan and safety notes.
 - `shellgarden list <dir>` prints a tab-separated inventory of garden commands.
 
+Options that take a value require a non-empty value, and commands reject unexpected positional arguments.
+
 ## Exit codes
 
 - `0` — garden is clean.
