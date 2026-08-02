@@ -80,16 +80,22 @@ function parseArgs(argv: string[]): ParsedArgs {
     else if (arg === "--update") parsed.update = true;
     else if (arg === "--strict-warnings") parsed.strictWarnings = true;
     else if (arg === "--execute") continue;
-    else if (arg === "--filter") parsed.filter = argv[++index];
-    else if (arg === "--format") parsed.format = readFormat(argv[++index]);
-    else if (arg.startsWith("--format=")) parsed.format = readFormat(arg.slice("--format=".length));
-    else if (arg.startsWith("--filter=")) parsed.filter = arg.slice("--filter=".length);
+    else if (arg === "--filter") parsed.filter = readOptionValue("--filter", argv[++index]);
+    else if (arg === "--format") parsed.format = readFormat(readOptionValue("--format", argv[++index]));
+    else if (arg.startsWith("--format=")) parsed.format = readFormat(readOptionValue("--format", arg.slice("--format=".length)));
+    else if (arg.startsWith("--filter=")) parsed.filter = readOptionValue("--filter", arg.slice("--filter=".length));
     else if (arg.startsWith("-")) throw new Error(`Unknown option: ${arg}`);
     else positional.push(arg);
   }
+  if (positional.length > 2) throw new Error(`Unexpected argument: ${positional[2]}`);
   parsed.command = positional[0] ?? parsed.command;
   parsed.target = positional[1] ?? parsed.target;
   return parsed;
+}
+
+function readOptionValue(option: string, value: string | undefined): string {
+  if (value?.trim() && !value.startsWith("-")) return value;
+  throw new Error(`${option} requires a non-empty value`);
 }
 
 function readFormat(value: string | undefined): OutputFormat {
