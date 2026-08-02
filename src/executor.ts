@@ -11,6 +11,7 @@ export interface ExecuteOptions {
 const MAX_CAPTURE_BYTES = 128 * 1024;
 
 export async function executeCommand(command: CommandSpec, options: ExecuteOptions): Promise<Transcript> {
+  const startedAt = process.hrtime.bigint();
   const child = spawn(command.run, {
     cwd: options.cwd,
     shell: "/bin/sh",
@@ -43,6 +44,7 @@ export async function executeCommand(command: CommandSpec, options: ExecuteOptio
       resolve(false);
     });
   });
+  const durationMs = Number(process.hrtime.bigint() - startedAt) / 1_000_000;
 
   return {
     command: command.run,
@@ -50,7 +52,7 @@ export async function executeCommand(command: CommandSpec, options: ExecuteOptio
     exitCode: timedOut ? null : child.exitCode,
     stdout: normalizeOutput(stdout, options.workspaceRoot),
     stderr: normalizeOutput(timedOut ? `${stderr}\n<timed out after ${options.timeoutMs}ms>` : stderr, options.workspaceRoot),
-    durationMs: 0,
+    durationMs,
   };
 }
 

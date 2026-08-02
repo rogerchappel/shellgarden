@@ -30,3 +30,7 @@ Each command has:
 See [`docs/schema/shellgarden.schema.json`](schema/shellgarden.schema.json).
 
 Configuration objects are strict: properties not listed above are rejected instead of being ignored.
+
+## Report transcripts
+
+Executed commands include a `transcript` in JSON reports. Its `durationMs` is the non-negative elapsed command time measured with a monotonic clock and may include fractional milliseconds. A command stopped by `timeoutMs` has `exitCode: null` and ends `stderr` with `<timed out after Nms>`.
