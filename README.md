@@ -72,7 +72,7 @@ A garden config looks like this:
 - `shellgarden explain <dir>` prints the execution plan and safety notes.
 - `shellgarden list <dir>` prints a tab-separated inventory of garden commands.
 
-Options that take a value require a non-empty value, and commands reject unexpected positional arguments.
+Options are command-specific: `--update`, `--dry-run`, `--strict-warnings`, and `--filter` belong to `check`; `--execute` belongs to `run`; and `--format` is supported by `check`, `report`, and `run`. Unsupported command/option combinations exit with code 2 before execution, so `report` is always read-only. Options that take a value require a non-empty value, and commands reject unexpected positional arguments.
 
 ## Exit codes
 
