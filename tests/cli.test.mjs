@@ -15,6 +15,60 @@ test('cli emits json reports', async () => {
   assert.equal(report.summary.commands, 2);
 });
 
+test('report rejects --update before it can recreate a transcript', async (t) => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'shellgarden-report-read-only-'));
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  fs.cpSync('fixtures/pass', dir, { recursive: true });
+  const transcript = path.join(dir, 'transcripts', 'read-file-print-message.txt');
+  fs.rmSync(transcript);
+
+  await assert.rejects(
+    execFileAsync(process.execPath, ['dist/bin.js', 'report', dir, '--update', '--format', 'json']),
+    (error) => error.code === 2
+      && error.stderr.includes('report does not support --update')
+      && error.stderr.includes('Supported options: --format')
+      && error.stdout === ''
+  );
+  assert.equal(fs.existsSync(transcript), false);
+});
+
+for (const [command, option] of [
+  ['init', '--format=json'],
+  ['check', '--execute'],
+  ['report', '--dry-run'],
+  ['run', '--update'],
+  ['explain', '--strict-warnings'],
+  ['list', '--filter=print-message'],
+]) {
+  test(`cli rejects ${option} for ${command}`, async () => {
+    await assert.rejects(
+      execFileAsync(process.execPath, ['dist/bin.js', command, 'fixtures/pass', option]),
+      (error) => error.code === 2
+        && error.stderr.includes(`${command} does not support ${option.split('=')[0]}`)
+        && error.stdout === ''
+    );
+  });
+}
+
+test('check --update still creates missing transcripts', async (t) => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'shellgarden-check-update-'));
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  fs.cpSync('fixtures/pass', dir, { recursive: true });
+  const transcript = path.join(dir, 'transcripts', 'read-file-print-message.txt');
+  fs.rmSync(transcript);
+
+  await execFileAsync(process.execPath, ['dist/bin.js', 'check', dir, '--update']);
+  assert.match(fs.readFileSync(transcript, 'utf8'), /hello from the garden/);
+});
+
+test('run preserves dry-run and explicit execution semantics', async () => {
+  const dryRun = await execFileAsync(process.execPath, ['dist/bin.js', 'run', 'fixtures/pass', '--format', 'json']);
+  const execute = await execFileAsync(process.execPath, ['dist/bin.js', 'run', 'fixtures/pass', '--execute', '--format', 'json']);
+
+  assert.equal(JSON.parse(dryRun.stdout).summary.skipped, 2);
+  assert.equal(JSON.parse(execute.stdout).summary.skipped, 0);
+});
+
 test('cli returns exit code 1 for failing fixtures', async () => {
   await assert.rejects(
     execFileAsync(process.execPath, ['dist/bin.js', 'check', 'fixtures/fail']),

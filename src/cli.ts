@@ -15,7 +15,17 @@ interface ParsedArgs {
   filter?: string;
   help: boolean;
   version: boolean;
+  providedOptions: Set<string>;
 }
+
+const COMMAND_OPTIONS: Readonly<Record<string, readonly string[]>> = {
+  init: [],
+  check: ["--format", "--update", "--dry-run", "--strict-warnings", "--filter"],
+  report: ["--format"],
+  run: ["--execute", "--format"],
+  explain: [],
+  list: [],
+};
 
 export const VERSION = "0.1.0";
 
@@ -69,6 +79,7 @@ function parseArgs(argv: string[]): ParsedArgs {
     strictWarnings: false,
     help: false,
     version: false,
+    providedOptions: new Set(),
   };
 
   const positional: string[] = [];
@@ -76,21 +87,34 @@ function parseArgs(argv: string[]): ParsedArgs {
     const arg = argv[index];
     if (arg === "--help" || arg === "-h") parsed.help = true;
     else if (arg === "--version" || arg === "-v") parsed.version = true;
-    else if (arg === "--dry-run") parsed.dryRun = true;
-    else if (arg === "--update") parsed.update = true;
-    else if (arg === "--strict-warnings") parsed.strictWarnings = true;
-    else if (arg === "--execute") continue;
-    else if (arg === "--filter") parsed.filter = readOptionValue("--filter", argv[++index]);
-    else if (arg === "--format") parsed.format = readFormat(readOptionValue("--format", argv[++index]));
-    else if (arg.startsWith("--format=")) parsed.format = readFormat(readOptionValue("--format", arg.slice("--format=".length)));
-    else if (arg.startsWith("--filter=")) parsed.filter = readOptionValue("--filter", arg.slice("--filter=".length));
+    else if (arg === "--dry-run") { parsed.dryRun = true; parsed.providedOptions.add("--dry-run"); }
+    else if (arg === "--update") { parsed.update = true; parsed.providedOptions.add("--update"); }
+    else if (arg === "--strict-warnings") { parsed.strictWarnings = true; parsed.providedOptions.add("--strict-warnings"); }
+    else if (arg === "--execute") parsed.providedOptions.add("--execute");
+    else if (arg === "--filter") { parsed.providedOptions.add("--filter"); parsed.filter = readOptionValue("--filter", argv[++index]); }
+    else if (arg === "--format") { parsed.providedOptions.add("--format"); parsed.format = readFormat(readOptionValue("--format", argv[++index])); }
+    else if (arg.startsWith("--format=")) { parsed.providedOptions.add("--format"); parsed.format = readFormat(readOptionValue("--format", arg.slice("--format=".length))); }
+    else if (arg.startsWith("--filter=")) { parsed.providedOptions.add("--filter"); parsed.filter = readOptionValue("--filter", arg.slice("--filter=".length)); }
     else if (arg.startsWith("-")) throw new Error(`Unknown option: ${arg}`);
     else positional.push(arg);
   }
   if (positional.length > 2) throw new Error(`Unexpected argument: ${positional[2]}`);
   parsed.command = positional[0] ?? parsed.command;
   parsed.target = positional[1] ?? parsed.target;
+  validateCommandOptions(parsed);
   return parsed;
+}
+
+function validateCommandOptions(parsed: ParsedArgs): void {
+  if (parsed.help || parsed.version) return;
+  const supported = COMMAND_OPTIONS[parsed.command];
+  if (!supported) return;
+  for (const option of parsed.providedOptions) {
+    if (!supported.includes(option)) {
+      const guidance = supported.length > 0 ? ` Supported options: ${supported.join(", ")}.` : " This command accepts no options.";
+      throw new Error(`${parsed.command} does not support ${option}.${guidance}`);
+    }
+  }
 }
 
 function readOptionValue(option: string, value: string | undefined): string {
