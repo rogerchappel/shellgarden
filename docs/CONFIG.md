@@ -34,3 +34,5 @@ Configuration objects are strict: properties not listed above are rejected inste
 ## Report transcripts
 
 Executed commands include a `transcript` in JSON reports. Its `durationMs` is the non-negative elapsed command time measured with a monotonic clock and may include fractional milliseconds. A command stopped by `timeoutMs` has `exitCode: null` and ends `stderr` with `<timed out after Nms>`.
+
+Each transcript captures stdout and stderr independently, up to 128 KiB per stream measured as UTF-8 bytes. Oversized output is cut at a complete character and ends with exactly one `<output truncated>` marker; the marker is included within the 128 KiB limit.
