@@ -9,6 +9,8 @@ export interface ExecuteOptions {
 }
 
 const MAX_CAPTURE_BYTES = 128 * 1024;
+const TRUNCATION_MARKER = "\n<output truncated>";
+const MAX_CAPTURE_CONTENT_BYTES = MAX_CAPTURE_BYTES - Buffer.byteLength(TRUNCATION_MARKER, "utf8");
 
 export async function executeCommand(command: CommandSpec, options: ExecuteOptions): Promise<Transcript> {
   const startedAt = process.hrtime.bigint();
@@ -19,8 +21,8 @@ export async function executeCommand(command: CommandSpec, options: ExecuteOptio
     stdio: ["ignore", "pipe", "pipe"],
   });
 
-  let stdout = "";
-  let stderr = "";
+  let stdout = emptyCapture();
+  let stderr = emptyCapture();
   child.stdout.setEncoding("utf8");
   child.stderr.setEncoding("utf8");
   child.stdout.on("data", (chunk: string) => {
@@ -50,16 +52,41 @@ export async function executeCommand(command: CommandSpec, options: ExecuteOptio
     command: command.run,
     cwd: normalizeOutput(options.cwd, options.workspaceRoot),
     exitCode: timedOut ? null : child.exitCode,
-    stdout: normalizeOutput(stdout, options.workspaceRoot),
-    stderr: normalizeOutput(timedOut ? `${stderr}\n<timed out after ${options.timeoutMs}ms>` : stderr, options.workspaceRoot),
+    stdout: normalizeOutput(stdout.output, options.workspaceRoot),
+    stderr: normalizeOutput(timedOut ? `${stderr.output}\n<timed out after ${options.timeoutMs}ms>` : stderr.output, options.workspaceRoot),
     durationMs,
   };
 }
 
-function appendBounded(current: string, chunk: string): string {
-  const next = current + chunk;
-  if (Buffer.byteLength(next, "utf8") <= MAX_CAPTURE_BYTES) return next;
-  return `${next.slice(0, MAX_CAPTURE_BYTES)}\n<output truncated>`;
+interface Capture {
+  output: string;
+  truncated: boolean;
+}
+
+function emptyCapture(): Capture {
+  return { output: "", truncated: false };
+}
+
+function appendBounded(current: Capture, chunk: string): Capture {
+  if (current.truncated) return current;
+  const next = current.output + chunk;
+  if (Buffer.byteLength(next, "utf8") <= MAX_CAPTURE_BYTES) return { output: next, truncated: false };
+  return {
+    output: `${utf8Prefix(next, MAX_CAPTURE_CONTENT_BYTES)}${TRUNCATION_MARKER}`,
+    truncated: true,
+  };
+}
+
+function utf8Prefix(value: string, maxBytes: number): string {
+  let bytes = 0;
+  let codeUnits = 0;
+  for (const character of value) {
+    const characterBytes = Buffer.byteLength(character, "utf8");
+    if (bytes + characterBytes > maxBytes) break;
+    bytes += characterBytes;
+    codeUnits += character.length;
+  }
+  return value.slice(0, codeUnits);
 }
 
 function deterministicEnv(root: string): NodeJS.ProcessEnv {
