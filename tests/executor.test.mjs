@@ -45,6 +45,28 @@ test('report retains timeout exit code and marker with a truthful duration', asy
   assert.ok(transcript.durationMs >= 20, `expected timeout duration of at least 20ms, got ${transcript.durationMs}`);
 });
 
+test('timeout waits for a TERM-ignoring process to close before resolving', async (t) => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'shellgarden-timeout-lifecycle-'));
+  const marker = path.join(root, 'late.txt');
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const script = [
+    "process.on('SIGTERM', () => {})",
+    `setTimeout(() => fs.writeFileSync(${JSON.stringify(marker)}, 'late'), 500)`,
+    'setInterval(() => {}, 1000)',
+  ].join(';');
+
+  const transcript = await executeCommand(
+    { id: 'ignore-term', run: `${process.execPath} -e ${JSON.stringify(`const fs = require('node:fs');${script}`)}` },
+    { cwd: root, workspaceRoot: root, timeoutMs: 20 },
+  );
+
+  assert.equal(transcript.exitCode, null);
+  assert.match(transcript.stderr, /<timed out after 20ms>/);
+  assert.equal(fs.existsSync(marker), false);
+  await new Promise((resolve) => setTimeout(resolve, 550));
+  assert.equal(fs.existsSync(marker), false, 'timed-out process modified the fixture after executeCommand resolved');
+});
+
 for (const stream of ['stdout', 'stderr']) {
   test(`executor caps oversized ASCII ${stream} with one truncation marker`, async () => {
     const transcript = await executeCommand(
