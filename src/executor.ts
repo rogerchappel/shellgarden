@@ -11,6 +11,7 @@ export interface ExecuteOptions {
 const MAX_CAPTURE_BYTES = 128 * 1024;
 const TRUNCATION_MARKER = "\n<output truncated>";
 const MAX_CAPTURE_CONTENT_BYTES = MAX_CAPTURE_BYTES - Buffer.byteLength(TRUNCATION_MARKER, "utf8");
+const TERMINATION_GRACE_MS = 100;
 
 export async function executeCommand(command: CommandSpec, options: ExecuteOptions): Promise<Transcript> {
   const startedAt = process.hrtime.bigint();
@@ -19,6 +20,7 @@ export async function executeCommand(command: CommandSpec, options: ExecuteOptio
     shell: "/bin/sh",
     env: deterministicEnv(options.workspaceRoot),
     stdio: ["ignore", "pipe", "pipe"],
+    detached: true,
   });
 
   let stdout = emptyCapture();
@@ -33,18 +35,33 @@ export async function executeCommand(command: CommandSpec, options: ExecuteOptio
   });
 
   const timedOut = await new Promise<boolean>((resolve, reject) => {
-    const timer = setTimeout(() => {
-      child.kill("SIGTERM");
-      resolve(true);
+    let didTimeOut = false;
+    let escalationTimer: NodeJS.Timeout | undefined;
+    const timeoutTimer = setTimeout(() => {
+      didTimeOut = true;
+      signalProcessGroup(child.pid, "SIGTERM");
+      escalationTimer = setTimeout(() => {
+        signalProcessGroup(child.pid, "SIGKILL");
+      }, TERMINATION_GRACE_MS);
     }, options.timeoutMs);
-    child.on("error", (error) => {
-      clearTimeout(timer);
+
+    const cleanup = () => {
+      clearTimeout(timeoutTimer);
+      if (escalationTimer) clearTimeout(escalationTimer);
+      child.removeListener("error", onError);
+      child.removeListener("close", onClose);
+    };
+    const onError = (error: Error) => {
+      cleanup();
       reject(error);
-    });
-    child.on("close", () => {
-      clearTimeout(timer);
-      resolve(false);
-    });
+    };
+    const onClose = () => {
+      cleanup();
+      resolve(didTimeOut);
+    };
+
+    child.once("error", onError);
+    child.once("close", onClose);
   });
   const durationMs = Number(process.hrtime.bigint() - startedAt) / 1_000_000;
 
@@ -56,6 +73,15 @@ export async function executeCommand(command: CommandSpec, options: ExecuteOptio
     stderr: normalizeOutput(timedOut ? `${stderr.output}\n<timed out after ${options.timeoutMs}ms>` : stderr.output, options.workspaceRoot),
     durationMs,
   };
+}
+
+function signalProcessGroup(pid: number | undefined, signal: NodeJS.Signals): void {
+  if (pid === undefined) return;
+  try {
+    process.kill(-pid, signal);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ESRCH") throw error;
+  }
 }
 
 interface Capture {
