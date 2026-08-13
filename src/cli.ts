@@ -128,5 +128,5 @@ function readFormat(value: string | undefined): OutputFormat {
 }
 
 export function helpText(): string {
-  return `ShellGarden - fixture-backed shell examples that stay fresh\n\nUsage:\n  shellgarden init <dir>\n  shellgarden check <dir> [--format text|json] [--update] [--dry-run] [--strict-warnings] [--filter id]\n  shellgarden report <dir> [--format text|json]\n  shellgarden run <dir> --execute [--format text|json]\n  shellgarden explain <dir>\n  shellgarden list <dir>\n\nExit codes:\n  0 clean garden\n  1 findings exceeded policy\n  2 invalid input or config\n`;
+  return `ShellGarden - fixture-backed shell examples that stay fresh\n\nUsage:\n  shellgarden init <dir>\n  shellgarden check <dir> [--format text|json] [--update] [--dry-run] [--strict-warnings] [--filter id|garden-id/command-id]\n  shellgarden report <dir> [--format text|json]\n  shellgarden run <dir> --execute [--format text|json]\n  shellgarden explain <dir>\n  shellgarden list <dir>\n\nFilter matching:\n  garden id             all commands in that garden\n  command id            every command with that id\n  garden-id/command-id  that fully qualified command\n  no match              policy finding, exit 1\n\nExit codes:\n  0 clean garden\n  1 findings exceeded policy (including an unmatched filter)\n  2 invalid input or config\n`;
 }
