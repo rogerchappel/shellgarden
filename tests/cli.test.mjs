@@ -76,6 +76,34 @@ test('cli returns exit code 1 for failing fixtures', async () => {
   );
 });
 
+test('cli returns exit code 1 when --filter matches nothing', async () => {
+  await assert.rejects(
+    execFileAsync(process.execPath, ['dist/bin.js', 'check', 'fixtures/pass', '--filter', 'does-not-exist', '--format', 'json']),
+    (error) => {
+      const report = JSON.parse(error.stdout);
+      return error.code === 1
+        && report.ok === false
+        && report.summary.commands === 0
+        && report.findings[0].code === 'filter-no-match';
+    }
+  );
+});
+
+for (const [filter, expectedCommands] of [
+  ['read-file', 2],
+  ['print-message', 1],
+  ['read-file/print-message', 1],
+]) {
+  test(`cli accepts filter identifier: ${filter}`, async () => {
+    const { stdout } = await execFileAsync(process.execPath, [
+      'dist/bin.js', 'check', 'fixtures/pass', '--filter', filter, '--format', 'json',
+    ]);
+    const report = JSON.parse(stdout);
+    assert.equal(report.ok, true);
+    assert.equal(report.summary.commands, expectedCommands);
+  });
+}
+
 test('cli reports invalid config with exit code 2', async (t) => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'shellgarden-invalid-'));
   t.after(() => fs.rmSync(dir, { recursive: true, force: true }));

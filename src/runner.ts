@@ -21,6 +21,16 @@ export async function runGarden(target: string, options: RunOptions = {}): Promi
   const findings: Finding[] = [];
   const results: CommandResult[] = [];
 
+  if (options.filter && !loaded.config.gardens.some((garden) =>
+    garden.id === options.filter || garden.commands.some((command) =>
+      command.id === options.filter || `${garden.id}/${command.id}` === options.filter))) {
+    findings.push({
+      level: "error",
+      code: "filter-no-match",
+      message: `filter matched no garden or command: ${options.filter}`,
+    });
+  }
+
   for (const garden of loaded.config.gardens) {
     const fixturePath = resolveInside(loaded.root, garden.fixture);
     if (!fs.existsSync(fixturePath) || !fs.statSync(fixturePath).isDirectory()) {
