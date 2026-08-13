@@ -74,6 +74,8 @@ A garden config looks like this:
 
 Options are command-specific: `--update`, `--dry-run`, `--strict-warnings`, and `--filter` belong to `check`; `--execute` belongs to `run`; and `--format` is supported by `check`, `report`, and `run`. Unsupported command/option combinations exit with code 2 before execution, so `report` is always read-only. Options that take a value require a non-empty value, and commands reject unexpected positional arguments.
 
+`check --filter <id>` matches a garden id, a command id, or a fully qualified `garden-id/command-id` key. A garden id runs all commands in that garden; either command form runs the matching command(s). A non-empty filter that matches nothing produces a `filter-no-match` policy finding and exits with code 1 rather than reporting an empty successful check.
+
 ## Exit codes
 
 - `0` — garden is clean.
