@@ -20,10 +20,14 @@ export async function runGarden(target: string, options: RunOptions = {}): Promi
   const loaded = loadConfig(target);
   const findings: Finding[] = [];
   const results: CommandResult[] = [];
+  const gardens = loaded.config.gardens.flatMap((garden) => {
+    if (!options.filter || garden.id === options.filter) return [garden];
+    const commands = garden.commands.filter((command) =>
+      command.id === options.filter || `${garden.id}/${command.id}` === options.filter);
+    return commands.length > 0 ? [{ ...garden, commands }] : [];
+  });
 
-  if (options.filter && !loaded.config.gardens.some((garden) =>
-    garden.id === options.filter || garden.commands.some((command) =>
-      command.id === options.filter || `${garden.id}/${command.id}` === options.filter))) {
+  if (options.filter && gardens.length === 0) {
     findings.push({
       level: "error",
       code: "filter-no-match",
@@ -31,15 +35,13 @@ export async function runGarden(target: string, options: RunOptions = {}): Promi
     });
   }
 
-  for (const garden of loaded.config.gardens) {
+  for (const garden of gardens) {
     const fixturePath = resolveInside(loaded.root, garden.fixture);
     if (!fs.existsSync(fixturePath) || !fs.statSync(fixturePath).isDirectory()) {
       findings.push({ level: "error", code: "missing-fixture", message: `Fixture not found: ${garden.fixture}`, gardenId: garden.id, path: garden.fixture });
       continue;
     }
     for (const command of garden.commands) {
-      const commandKey = `${garden.id}/${command.id}`;
-      if (options.filter && commandKey !== options.filter && command.id !== options.filter && garden.id !== options.filter) continue;
       const commandFindings = inspectCommand(command, garden.id);
       const result: CommandResult = {
         gardenId: garden.id,
@@ -74,7 +76,7 @@ export async function runGarden(target: string, options: RunOptions = {}): Promi
     root: normalizeOutput(loaded.root, loaded.root),
     configPath: normalizeOutput(loaded.configPath, loaded.root),
     summary: {
-      gardens: loaded.config.gardens.length,
+      gardens: gardens.length,
       commands: results.length,
       findings: findings.length,
       errors,
