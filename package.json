@@ -30,10 +30,7 @@
     "CONTRIBUTING.md",
     "SECURITY.md",
     "README.md",
-    "LICENSE",
-    "SECURITY.md",
-    "CHANGELOG.md",
-    "CONTRIBUTING.md"
+    "LICENSE"
   ],
   "scripts": {
     "build": "tsc",
